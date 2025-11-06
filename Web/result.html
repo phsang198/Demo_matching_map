@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OpenStreetMap Viewer</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
-    <style>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>OpenStreetMap Viewer</title>
+        <link rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+        <style>
         * {
             margin: 0;
             padding: 0;
@@ -202,49 +203,65 @@
             cursor: pointer;
             font-size: 11px;
         }
-    </style>
-</head>
-<body>
-    <div id="map"></div>
-    
-    <div class="controls">
-        <h3>🗺️ Điều khiển</h3>
-        <button class="btn" onclick="zoomIn()">🔍 Zoom In</button>
-        <button class="btn" onclick="zoomOut()">🔍 Zoom Out</button>
-        <button class="btn secondary" onclick="goToHCM()">📍 Đến TP.HCM</button>
-        <button class="btn secondary" onclick="goToHanoi()">📍 Đến Hà Nội</button>
-        <button class="btn secondary" onclick="addMarker()">📌 Thêm Marker</button>
-        <button class="btn danger" onclick="clearAllPoints()">🗑️ Xóa tất cả điểm</button>
         
-        <div class="points-list" id="pointsList">
-            <strong style="margin-top: 10px;">Danh sách điểm đã lưu:</strong>
-        </div>
-    </div>
-    
-    <div class="info">
-        <strong>Hướng dẫn sử dụng:</strong>
-        • Kéo thả bản đồ để di chuyển<br>
-        • Cuộn chuột để zoom in/out<br>
-        • Click chuột phải để thêm điểm<br>
-        • Nhấp đúp để zoom nhanh<br>
-        • Zoom: <span id="zoom-level">10</span>
-    </div>
-    
-    <!-- Hiển thị tọa độ khi di chuyển chuột -->
-    <div class="coordinate-display" id="coordinateDisplay">
-        Lat: 0.000000, Lon: 0.000000
-    </div>
-    
-    <!-- Context Menu để thêm điểm -->
-    <div class="context-menu" id="contextMenu">
-        <h4>📍 Thêm điểm đến</h4>
-        <input type="text" id="pointName" placeholder="Nhập tên điểm đến..." />
-        <div class="coordinates" id="contextCoords"></div>
-        <button class="btn-add" onclick="savePoint()">✓ Lưu điểm</button>
-        <button class="btn-cancel" onclick="closeContextMenu()">✗ Hủy</button>
-    </div>
+        .poi-marker {
+            background: transparent;
+            border: none;
+            text-align: center;
+        }
+    </style>
+    </head>
+    <body>
+        <div id="map"></div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-    <script src="control.js"></script>
-</body>
+        <div class="controls">
+            <h3>🗺️ Điều khiển</h3>
+            <button class="btn" onclick="zoomIn()">🔍 Zoom In</button>
+            <button class="btn" onclick="zoomOut()">🔍 Zoom Out</button>
+            <button class="btn secondary" onclick="goToHCM()">📍 Đến
+                TP.HCM</button>
+            <button class="btn secondary" onclick="goToHanoi()">📍 Đến Hà
+                Nội</button>
+            <button class="btn secondary" onclick="addMarker()">📌 Thêm
+                Marker</button>
+            <button class="btn danger" onclick="clearAllPoints()">🗑️ Xóa tất cả
+                điểm</button>
+
+            <div class="points-list" id="pointsList">
+                <strong style="margin-top: 10px;">Danh sách điểm đã
+                    lưu:</strong>
+            </div>
+        </div>
+
+        <div class="info">
+            <strong>Hướng dẫn sử dụng:</strong>
+            • Kéo thả bản đồ để di chuyển<br>
+            • Cuộn chuột để zoom in/out<br>
+            • Click chuột phải để thêm điểm<br>
+            • Nhấp đúp để zoom nhanh<br>
+            • Zoom: <span id="zoom-level">10</span>
+        </div>
+
+        <!-- Hiển thị tọa độ khi di chuyển chuột -->
+        <div class="coordinate-display" id="coordinateDisplay">
+            Lat: 0.000000, Lon: 0.000000
+        </div>
+
+        <!-- Context Menu để thêm điểm -->
+        <div class="context-menu" id="contextMenu">
+            <h4>📍 Thêm điểm đến</h4>
+            <input type="text" id="pointName"
+                placeholder="Nhập tên điểm đến..." />
+            <div class="coordinates" id="contextCoords"></div>
+            <button class="btn-add" onclick="savePoint()">✓ Lưu điểm</button>
+            <button class="btn-cancel" onclick="closeContextMenu()">✗
+                Hủy</button>
+        </div>
+
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+        <script src="control2.js"></script>
+        <script src="layer.js"></script>
+        <script src="listen2.js"></script>
+    </body>
 </html>

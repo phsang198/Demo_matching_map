@@ -1,3 +1,4 @@
+// Mảng lưu trữ các điểm đã thêm
 let savedPoints = [];
 let currentContextLatLng = null;
 let markerCount = 0;
@@ -92,9 +93,8 @@ function closeContextMenu() {
 
 // Thêm biến để lưu polyline ở đầu file (sau dòng let markerCount = 0;)
 let routeLine = null;
-let pathlineMap = new Map();
-let currentpathline = [];
-let currentInstanceId = null;
+let pathline = null;
+
 // Thay thế hàm savePoint() bằng code này:
 function savePoint() {
     pointName = document.getElementById('pointName').value.trim();
@@ -140,63 +140,22 @@ function savePoint() {
     console.log('Tổng số điểm:', savedPoints.length);
     console.log('Mảng điểm:', savedPoints);
 }
-function updateRouteLine2(instanceid) {
-    console.log("Updating route line for instance:", instanceid);
-    console.log("Current instance ID:", currentInstanceId);
-    if (currentInstanceId != instanceid) {
-        
-        if (pathlineMap.has(instanceid)) {
-            if (currentpathline.length != 0) {
-                map.removeLayer(currentpathline[0]);
-                map.removeLayer(currentpathline[1]);
-            }
-            let pathl1 = drawRouteLine2(pathlineMap.get(instanceid).data.mm, "#ff0000ff");
-            let pathl2 = drawRouteLine2(pathlineMap.get(instanceid).data.filtered, "#750ec9ff");
-            currentpathline = [pathl1, pathl2];
-
-            map.flyTo(pathlineMap.get(instanceid).data.mm[0], 15, {
-                duration: 2
-            });
-        }
-        currentInstanceId = instanceid;
-    }
-}
 // vẽ line từ [[lat,lng], [lat,lng], ...   ]
-function drawRouteLine2( array, color = "#750ec9ff") {
+function drawRouteLine(array) {
     console.log("Drawing route line with points:", array);
     // duyệt array và vẽ lên map
+    // Nếu có ít nhất 2 điểm thì vẽ đường
     if (array.length >= 2) {
         const latlngs = array.map(point => [point[0], point[1]]);
         
-        path = L.polyline(latlngs, {
-            color: color,
+        console.log("LatLngs for polyline2:", latlngs);
+        pathline = L.polyline(latlngs, {
+            color: '#750ec9ff',
             weight: 3,
             opacity: 0.7,
             smoothFactor: 1
         }).addTo(map);
-
-        return path;
     }
-    
-}
-function processEventMain() {
-    eventData = JSON.parse(localStorage.getItem('data'));
-    console.log('[Process] Received event:', eventData);
-
-    if (currentpathline.length != 0) {
-            map.removeLayer(currentpathline[0]);
-            map.removeLayer(currentpathline[1]);
-        }
-    let pathl1 = drawRouteLine2(eventData.data.mm, "#ff0b0bff");
-    let pathl2 = drawRouteLine2(eventData.data.filtered, "#750ec9ff");
-
-    pathlineMap.set(eventData.instanceId, eventData);
-    currentInstanceId = eventData.instanceId;
-    currentpathline = [pathl1, pathl2];
-    map.flyTo(eventData.data.mm[0], 15, {
-        duration: 2
-    });
-    // drawRouteLine2(eventData.data.filtered,"#750ec9ff");
     
 }
 // Thêm hàm mới để vẽ/cập nhật đường nối

@@ -3,7 +3,7 @@ let vehicleMap = new Map();
 let trackingPolyline = null;
 let trackingMarkers = [];
 // Thêm biến để quản lý instances
-let instances = [];
+let instanceMap = new Map();
 let activeInstanceId = null;
 let filterLevel = 50;
 let instanceCounter = 0;
@@ -59,7 +59,7 @@ async function loadVehicleList() {
                 option.textContent = vehicle[1];
                 select.appendChild(option);
                 vehicleMap.set(vehicle[1], vehicle[0]);
-                if (count >= 10) {
+                if (count >= 50) {
                     break; // Giới hạn 50 phương tiện hiển thị
                 }
             }
@@ -149,7 +149,7 @@ async function loadTrackingData() {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
 
-        
+        document.querySelector('.btn-load').disabled = true;
         // // Giả lập dữ liệu để test (xóa phần này khi có API thật)
         // const mockData = [
         //     [10.845224936734395, 106.82555349008709, -127, 15, 1743917789964769],
@@ -316,7 +316,7 @@ function updateFilterValue(value) {
     
     // Nếu có instance đang active, cập nhật giá trị filter của nó
     if (activeInstanceId) {
-        const instance = instances.find(i => i.id === activeInstanceId);
+        const instance = instanceMap.get(activeInstanceId);
         if (instance) {
             instance.filterLevel = filterLevel;
             updateInstanceList();
@@ -326,7 +326,8 @@ function updateFilterValue(value) {
 
 // Tạo instance mới
 function updateInstance(instanceId) {
-    const instance = instances.find(i => i.id === instanceId);
+    const instance = instanceMap.get(instanceId);
+
     instance.vehicleId = document.getElementById('vehicleSelect').value || '';
     instance.startTime = document.getElementById('startTime').value || '';
     instance.endTime = document.getElementById('endTime').value || '';
@@ -378,7 +379,7 @@ async function createNewInstance() {
             createdAt: new Date(),
         };
         
-        instances.push(newInstance);
+        instanceMap.set(newInstance.id, newInstance);
         setActiveInstance(newInstance.id);
         updateInstanceList();
         
@@ -394,7 +395,7 @@ async function createNewInstance() {
 function setActiveInstance(instanceId) {
     activeInstanceId = instanceId;
     
-    const instance = instances.find(i => i.id === instanceId);
+    const instance = instanceMap.get(instanceId);
     if (instance) {
         // Load dữ liệu của instance vào form
         document.getElementById('vehicleSelect').value = instance.vehicleId;
@@ -420,7 +421,7 @@ function setActiveInstance(instanceId) {
 function deleteInstance(instanceId, event) {
     event.stopPropagation(); // Prevent triggering setActiveInstance
     
-    const instance = instances.find(i => i.id === instanceId);
+    const instance = instanceMap.get(instanceId);
     if (!instance) return;
     
     if (confirm(`Bạn có chắc muốn xóa instance "${instance.name}"?`)) {
@@ -431,16 +432,15 @@ function deleteInstance(instanceId, event) {
         instance.markers.forEach(marker => map.removeLayer(marker));
         
         // Xóa khỏi mảng
-        instances = instances.filter(i => i.id !== instanceId);
-        
+        instanceMap.delete(instanceId);
         // Nếu đang active instance này, reset form
         if (activeInstanceId === instanceId) {
             activeInstanceId = null;
             clearTrackingRoute();
             
             // Nếu còn instance khác, active instance đầu tiên
-            if (instances.length > 0) {
-                setActiveInstance(instances[0].id);
+            if (instanceMap.size > 0) {
+                setActiveInstance(Array.from(instanceMap.values())[0].id);
             }
         }
         
@@ -453,7 +453,7 @@ function deleteInstance(instanceId, event) {
 function updateInstanceList() {
     const listContainer = document.getElementById('instanceList');
     
-    if (instances.length === 0) {
+    if (instanceMap.length === 0) {
         listContainer.innerHTML = `
             <div class="no-instances">
                 Chưa có instance nào.<br>
@@ -465,11 +465,15 @@ function updateInstanceList() {
     
     listContainer.innerHTML = '';
     
+    // duyet qua instanceMap va them vao html
+    const instances = Array.from(instanceMap.values());
     instances.forEach(instance => {
         const item = document.createElement('div');
         item.className = `instance-item ${instance.id === activeInstanceId ? 'active' : ''}`;
-        item.onclick = () => setActiveInstance(instance.id);
-        
+        item.onclick = () => {
+            setActiveInstance(instance.id);
+            updateRouteLine2(instance.id);
+        };
         const vehicleName = instance.vehicleId || 'Chưa chọn';
         const dataPoints = instance.trackingData ? instance.trackingData.length : 0;
         
