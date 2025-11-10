@@ -1,7 +1,11 @@
 // WebSocket Manager đơn giản
+function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
 const wsManager = {
     connections: new Map(),
     
+
     connect(instanceId) {
         const ws = new WebSocket(`ws://10.225.0.240:8765/chat?instanceId=${instanceId}&type=bot&user=web_user`);
         
@@ -14,17 +18,21 @@ const wsManager = {
             try {
                 const data = JSON.parse(event.data);
                 console.log(`[WS Parsed] ${instanceId}:`, data);
-                if (data.data && data.data.view) {
+                if (data.data && data.data.view == "result" && data.data.open == undefined) {
                     console.log('processing event data...');
-                    localStorage.setItem("data", JSON.stringify(data));
                     // Gọi hàm process
-                    processEvent();
+                    (async () => {
+                        await processEvent(data);
+                        await sleep(1000);
+                    })();
                     // const viewUrl = `${data.data.view}.html`;
                     // console.log(`[WS] Opening view: ${viewUrl}`);
                     // window.open(viewUrl);
                     // onclose();
                 }
-            } catch (e) {}
+            } catch (e) {
+                console.error(`[WS Parser Error] ${instanceId}:`, e);
+            }
         };
         
         ws.onerror = (error) => {

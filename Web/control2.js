@@ -9,11 +9,11 @@ const map = L.map('map', {
 }).setView([10.810711652959442, 106.66883361367069], 18);
 
 // Thêm tile layer từ OpenStreetMap
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors',
     maxZoom: 19,
     minZoom: 3
-}).addTo(map);
+})
 
 var redIcon = new L.Icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
@@ -24,9 +24,22 @@ var redIcon = new L.Icon({
   shadowSize: [41, 41]
 });
 
-// Thêm marker mặc định tại TP.HCM
-const hcmMarker = L.marker([10.810711652959442, 106.66883361367069], { icon: redIcon }).addTo(map)
-    .bindPopup('<div class="marker-popup" style="color: red;"><strong>TP. Hồ Chí Minh</strong> Thành phố lớn nhất Việt Nam</div>');
+var blueIcon = new L.Icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
+var greenIcon = new L.Icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
 
 // Scale control
 L.control.scale({
@@ -141,6 +154,19 @@ function savePoint() {
     console.log('Mảng điểm:', savedPoints);
 }
 // vẽ line từ [[lat,lng], [lat,lng], ...   ]
+function distanceInMeters(p1, p2) {
+    const R = 6371000; // bán kính Trái Đất (m)
+    const lat1 = p1[0] * Math.PI / 180;
+    const lat2 = p2[0] * Math.PI / 180;
+    const dLat = (p2[0] - p1[0]) * Math.PI / 180;
+    const dLng = (p2[1] - p1[1]) * Math.PI / 180;
+
+    const a = Math.sin(dLat / 2) ** 2 +
+              Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+}
+
 function drawRouteLine(array) {
     console.log("Drawing route line with points:", array);
     // duyệt array và vẽ lên map
@@ -154,29 +180,31 @@ function drawRouteLine(array) {
             weight: 3,
             opacity: 0.7,
             smoothFactor: 1
-        }).addTo(map);
-    }
-    
-}
-// Thêm hàm mới để vẽ/cập nhật đường nối
-function updateRouteLine() {
-    // Xóa đường cũ nếu có
-    if (routeLine) {
-        map.removeLayer(routeLine);
-    }
-    
-    // Nếu có ít nhất 2 điểm thì vẽ đường
-    if (savedPoints.length >= 2) {
-        const latlngs = savedPoints.map(point => [point.lat, point.lng]);
+        });
+        // Thêm mũi tên
+        //vẽ mũi tên vào tất cả các điểm ở giữa array
+        for (let i = 1; i < latlngs.length - 1; i++) {
+            const start = latlngs[i - 1];
+            const end = latlngs[i + 1];
+            const dist = distanceInMeters(start, end);
+         if (dist < 50) continue; 
+            const angle = Math.atan2(end[0] - start[0], end[1] - start[1]) * 180 / Math.PI;
         
-        routeLine = L.polyline(latlngs, {
-            color: '#2196F3',
-            weight: 3,
-            opacity: 0.7,
-            smoothFactor: 1
-        }).addTo(map);
+
+            const arrowIcon = L.divIcon({
+                html: `<div style="transform: rotate(${-angle}deg); color: #750ec9ff;">➤</div>`,
+                className: 'arrow-icon',
+                iconSize: [20, 20],
+                iconAnchor: [10, 10]
+            });
+
+            const marker = L.marker(start, { icon: arrowIcon });
+            mixedLayer.addLayer(marker);
+        }
+        return pathline;
     }
 }
+
 
 // Hàm cập nhật danh sách điểm
 function updatePointsList() {
@@ -284,15 +312,10 @@ function goToHanoi() {
         duration: 2
     });
 }
-function zoomToCoord(lon, lat,zoomLevel, message="Event Occuring") {
+function zoomToCoord(lon, lat,zoomLevel) {
     map.flyTo([lat, lon], zoomLevel, {
         duration: 1
     });
-    // Thêm marker vào bản đồ
-    console.log("Adding marker at:", lat, lon);
-    const marker = L.marker([lat, lon]).addTo(map)
-        .bindPopup(`<div class="marker-popup"><strong>${message}</strong></div>`)
-        .openPopup();
 }
 
 function addMarker() {

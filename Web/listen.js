@@ -18,24 +18,22 @@ const wsManager = {
                 console.log(`[WS Parsed] ${instanceId}:`, data);
                 if (data.data && data.data.view) {
                     console.log('processing event data...');
-                    localStorage.setItem("data", JSON.stringify(data));
 
                     if (data.data.view == "input") {
-                        processEventMain();
+                        processEventMain(data);
                         return;
                     }
-                    // Gọi hàm process
-                    isopened++;
-                    if ( isopened % 2 == 0 ) {
+                    if (data.data.view == "result" && data.data.open) {
+                        localStorage.setItem("data", JSON.stringify(data));
+                        const viewUrl = `${data.data.view}.html`;
+                        console.log(`[WS] Opening view: ${viewUrl}`);
+                        window.open(viewUrl);
                         return;
                     }
-                    const viewUrl = `${data.data.view}.html`;
-                    console.log(`[WS] Opening view: ${viewUrl}`);
-                    window.open(viewUrl);
-                    
-                    onclose();
                 }
-            } catch (e) {}
+            } catch (e) {
+                console.error(`[WS Parser Error] ${instanceId}:`, e);
+            }
         };
         
         ws.onerror = (error) => {

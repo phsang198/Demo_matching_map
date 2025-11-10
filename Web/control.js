@@ -23,6 +23,7 @@ var redIcon = new L.Icon({
   shadowSize: [41, 41]
 });
 
+
 // Thêm marker mặc định tại TP.HCM
 const hcmMarker = L.marker([10.810711652959442, 106.66883361367069], { icon: redIcon }).addTo(map)
     .bindPopup('<div class="marker-popup" style="color: red;"><strong>TP. Hồ Chí Minh</strong> Thành phố lớn nhất Việt Nam</div>');
@@ -179,8 +180,7 @@ function drawRouteLine2( array, color = "#750ec9ff") {
     }
     
 }
-function processEventMain() {
-    eventData = JSON.parse(localStorage.getItem('data'));
+function processEventMain(eventData) {
     console.log('[Process] Received event:', eventData);
 
     if (currentpathline.length != 0) {

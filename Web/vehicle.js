@@ -341,7 +341,7 @@ async function createNewInstance() {
         showStatus('Đang tạo instance mới...', 'info');
         
         // Gọi API để tạo instance
-        const response = await fetch('http://10.222.3.84:5012/api/v2/workflow/model/start_id/6909c05ffcd083fe8d0647e5/await', {
+        const response = await fetch('http://10.222.3.84:5012/api/v2/workflow/model/start_id/6909c05ffcd083fe8d0647e5/await?expiresAfter=1200', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

@@ -3,7 +3,8 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>OpenStreetMap Viewer</title>
+        <title>VBD Map Matching</title>
+        <link rel="icon" type="image/png" href="favicon.png" />
         <link rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
         <style>
@@ -23,7 +24,23 @@
             width: 100%;
             height: 100vh;
         }
-        
+        .controls2 {
+            position: absolute;
+            top: 400px;
+            right: 60px;
+            z-index: 1000;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        .distance-box {
+            width: 100%;
+            resize: none;
+            padding: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
         .controls {
             position: absolute;
             top: 20px;
@@ -174,7 +191,7 @@
         .marker-popup strong {
             display: block;
             margin-bottom: 5px;
-            color: #2196F3;
+            color: #e04c07;
         }
         
         .points-list {
@@ -209,13 +226,42 @@
             border: none;
             text-align: center;
         }
+        #layer-panel {
+        position: absolute;
+        top: 100px;
+        left: 20px;
+        background: rgb(248, 248, 248);
+        padding: 10px 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+        font-family: sans-serif;
+        z-index: 1000;
+        }
+        #layer-panel h4 {
+        margin: 0 0 6px;
+        font-size: 15px;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 3px;
+        }
+        #layer-list label {
+        display: block;
+        margin: 4px 0;
+        }
+
     </style>
     </head>
     <body>
         <div id="map"></div>
+        <div id="map" style="height: 100vh;"></div>
+
+        <div id="layer-panel">
+            <h4>Lớp hiển thị</h4>
+            <div id="layer-list"></div> <!-- nơi tự động thêm checkbox -->
+        </div>
 
         <div class="controls">
             <h3>🗺️ Điều khiển</h3>
+
             <button class="btn" onclick="zoomIn()">🔍 Zoom In</button>
             <button class="btn" onclick="zoomOut()">🔍 Zoom Out</button>
             <button class="btn secondary" onclick="goToHCM()">📍 Đến
@@ -232,7 +278,12 @@
                     lưu:</strong>
             </div>
         </div>
-
+        <div class="controls2" id="controls2" style="display: none;">
+            <h3>🗺️ Distance</h3>
+            <input type="number" id="distanceInput" value="1000"
+                class="distance-box" />
+            <button class="btn" onclick="invokeData()">Update</button>
+        </div>
         <div class="info">
             <strong>Hướng dẫn sử dụng:</strong>
             • Kéo thả bản đồ để di chuyển<br>
@@ -260,8 +311,10 @@
 
         <script
             src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script src="control2.js"></script>
         <script src="layer.js"></script>
+        <script src="layer2.js"></script>
         <script src="listen2.js"></script>
     </body>
 </html>
