@@ -7,9 +7,9 @@ const API_WORKFLOW_URL = 'http://10.222.3.84:5012/api/v2/workflow/instance/{id}/
 const layerMap = new Map();
 
 // Load dữ liệu tracking
-async function invokeData() {
+async function invokeData(event) {
     const instanceId = localStorage.getItem('instanceId');
-    const distanceInput = parseInt(document.getElementById('distanceInput').value);
+    let distanceInput = parseInt(document.getElementById('distanceInput').value);
     
 
      document.querySelector('.controls2').style.display = 'none';
@@ -18,7 +18,9 @@ async function invokeData() {
         showStatus('Vui lòng nhập khoảng cách!', 'error');
         return;
     }
-
+    
+    if (event === "finish") distanceInput = 0; 
+    
     try {
         
         let apiUrl = API_WORKFLOW_URL;
