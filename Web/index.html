@@ -1,609 +1,621 @@
 <!DOCTYPE html>
 <html lang="vi">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>VBD Map Matching</title>
-        <link rel="icon" type="image/png" href="favicon.png" />
-        <link rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
-        <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            height: 100vh;
-            overflow: hidden;
-        }
-        
-        #map {
-            width: 100%;
-            height: 100vh;
-        }
-        
-        .controls {
-            position: absolute;
-            top: 20px;
-            right: 60px;
-            z-index: 1000;
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        }
-        
-        .controls h3 {
-            margin-bottom: 10px;
-            font-size: 16px;
-            color: #333;
-        }
-        
-        .btn {
-            display: block;
-            width: 100%;
-            padding: 8px 15px;
-            margin: 5px 0;
-            background: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background 0.3s;
-        }
-        
-        .btn:hover {
-            background: #45a049;
-        }
-        
-        .btn.secondary {
-            background: #2196F3;
-        }
-        
-        .btn.secondary:hover {
-            background: #0b7dda;
-        }
-        
-        .btn.danger {
-            background: #f44336;
-        }
-        
-        .btn.danger:hover {
-            background: #da190b;
-        }
-        
-        .info {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            z-index: 1000;
-            background: white;
-            padding: 12px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            font-size: 13px;
-            max-width: 300px;
-        }
-        
-        .info strong {
-            display: block;
-            margin-bottom: 5px;
-            color: #333;
-        }
-        
-        /* Hiển thị tọa độ góc phải dưới */
-        .coordinate-display {
-            position: absolute;
-            bottom: 0;
-            right: 80px;
-            z-index: 1000;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 5px 10px;
-            font-size: 12px;
-            font-family: monospace;
-            border-top-left-radius: 4px;
-            border-top-right-radius: 4px;
-            box-shadow: 0 -1px 5px rgba(0,0,0,0.1);
-        }
-        
-        /* Context Menu - Hộp thoại thêm điểm */
-        .context-menu {
-            position: absolute;
-            display: none;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-            padding: 15px;
-            min-width: 250px;
-            z-index: 2000;
-        }
-        
-        .context-menu h4 {
-            margin-bottom: 10px;
-            color: #333;
-            font-size: 16px;
-        }
-        
-        .context-menu input {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-        
-        .context-menu .coordinates {
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 10px;
-            font-family: monospace;
-        }
-        
-        .context-menu button {
-            width: 48%;
-            padding: 8px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            margin-right: 4%;
-        }
-        
-        .context-menu button:last-child {
-            margin-right: 0;
-        }
-        
-        .context-menu .btn-add {
-            background: #4CAF50;
-            color: white;
-        }
-        
-        .context-menu .btn-cancel {
-            background: #f44336;
-            color: white;
-        }
-        
-        .marker-popup {
-            font-size: 14px;
-        }
-        
-        .marker-popup strong {
-            display: block;
-            margin-bottom: 5px;
-            color: #2196F3;
-        }
-        
-        .points-list {
-            margin-top: 10px;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        
-        .point-item {
-            padding: 5px;
-            margin: 3px 0;
-            background: #f5f5f5;
-            border-radius: 3px;
-            font-size: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .point-item button {
-            background: #f44336;
-            color: white;
-            border: none;
-            padding: 2px 8px;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 11px;
-        }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VBD Map Matching</title>
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        /* Menu bên trái */
-.left-panel {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    z-index: 1000;
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-    width: 320px;
-    max-height: calc(100vh - 100px);
-    overflow-y: auto;
-}
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        height: 100vh;
+        overflow: hidden;
+      }
 
-.left-panel h3 {
-    margin-bottom: 15px;
-    font-size: 18px;
-    color: #333;
-    border-bottom: 2px solid #2196F3;
-    padding-bottom: 10px;
-}
+      #map {
+        width: 100%;
+        height: 100vh;
+      }
 
-.form-group {
-    margin-bottom: 15px;
-}
+      .controls {
+        position: absolute;
+        top: 20px;
+        right: 60px;
+        z-index: 1000;
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      }
 
-.form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-size: 14px;
-    font-weight: 600;
-    color: #555;
-}
+      .controls h3 {
+        margin-bottom: 10px;
+        font-size: 16px;
+        color: #333;
+      }
 
-.form-group input,
-.form-group select {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
-    transition: border-color 0.3s;
-}
+      .btn {
+        display: block;
+        width: 100%;
+        padding: 8px 15px;
+        margin: 5px 0;
+        background: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background 0.3s;
+      }
 
-.form-group input:focus,
-.form-group select:focus {
-    outline: none;
-    border-color: #2196F3;
-}
+      .btn:hover {
+        background: #45a049;
+      }
 
-.btn-load {
-    width: 100%;
-    padding: 12px;
-    background: #2196F3;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 15px;
-    font-weight: 600;
-    transition: background 0.3s;
-    margin-top: 10px;
-}
+      .btn.secondary {
+        background: #2196f3;
+      }
 
-.btn-load:hover {
-    background: #0b7dda;
-}
+      .btn.secondary:hover {
+        background: #0b7dda;
+      }
 
-.btn-load:disabled {
-    background: #ccc;
-    cursor: not-allowed;
-}
+      .btn.danger {
+        background: #f44336;
+      }
 
-.status-message {
-    margin-top: 10px;
-    padding: 10px;
-    border-radius: 4px;
-    font-size: 13px;
-    display: none;
-}
+      .btn.danger:hover {
+        background: #da190b;
+      }
 
-.status-message.success {
-    background: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-}
+      .info {
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        z-index: 1000;
+        background: white;
+        padding: 12px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        font-size: 13px;
+        max-width: 300px;
+      }
 
-.status-message.error {
-    background: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
-}
+      .info strong {
+        display: block;
+        margin-bottom: 5px;
+        color: #333;
+      }
 
-.status-message.info {
-    background: #d1ecf1;
-    color: #0c5460;
-    border: 1px solid #bee5eb;
-}
+      /* Hiển thị tọa độ góc phải dưới */
+      .coordinate-display {
+        position: absolute;
+        bottom: 0;
+        right: 80px;
+        z-index: 1000;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 5px 10px;
+        font-size: 12px;
+        font-family: monospace;
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
+        box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.1);
+      }
 
-.tracking-info {
-    margin-top: 15px;
-    padding: 10px;
-    background: #f8f9fa;
-    border-radius: 4px;
-    font-size: 12px;
-}
+      /* Context Menu - Hộp thoại thêm điểm */
+      .context-menu {
+        position: absolute;
+        display: none;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        padding: 15px;
+        min-width: 250px;
+        z-index: 2000;
+      }
 
-.tracking-info strong {
-    display: block;
-    margin-bottom: 5px;
-    color: #333;
-}
-/* Slider cho filter */
-.slider-group {
-    margin-bottom: 15px;
-}
+      .context-menu h4 {
+        margin-bottom: 10px;
+        color: #333;
+        font-size: 16px;
+      }
 
-.slider-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    color: #555;
-}
+      .context-menu input {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+      }
 
-.slider-container {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
+      .context-menu .coordinates {
+        font-size: 12px;
+        color: #666;
+        margin-bottom: 10px;
+        font-family: monospace;
+      }
 
-.slider-container input[type="range"] {
-    flex: 1;
-    height: 6px;
-    border-radius: 3px;
-    background: #ddd;
-    outline: none;
-    -webkit-appearance: none;
-}
+      .context-menu button {
+        width: 48%;
+        padding: 8px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        margin-right: 4%;
+      }
 
-.slider-container input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: #2196F3;
-    cursor: pointer;
-    transition: background 0.3s;
-}
+      .context-menu button:last-child {
+        margin-right: 0;
+      }
 
-.slider-container input[type="range"]::-webkit-slider-thumb:hover {
-    background: #0b7dda;
-}
+      .context-menu .btn-add {
+        background: #4caf50;
+        color: white;
+      }
 
-.slider-container input[type="range"]::-moz-range-thumb {
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: #2196F3;
-    cursor: pointer;
-    border: none;
-}
+      .context-menu .btn-cancel {
+        background: #f44336;
+        color: white;
+      }
 
-.slider-value {
-    min-width: 40px;
-    text-align: center;
-    font-weight: 600;
-    color: #2196F3;
-    font-size: 16px;
-}
+      .marker-popup {
+        font-size: 14px;
+      }
 
-/* Instance Manager Panel */
-.instance-panel {
-    position: absolute;
-    top: 20px;
-    left: 360px;
-    z-index: 1000;
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-    width: 280px;
-    max-height: calc(100vh - 100px);
-    overflow-y: auto;
-}
+      .marker-popup strong {
+        display: block;
+        margin-bottom: 5px;
+        color: #2196f3;
+      }
 
-.instance-panel h3 {
-    margin-bottom: 15px;
-    font-size: 18px;
-    color: #333;
-    border-bottom: 2px solid #4CAF50;
-    padding-bottom: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
+      .points-list {
+        margin-top: 10px;
+        max-height: 200px;
+        overflow-y: auto;
+      }
 
-.btn-add-instance {
-    background: #4CAF50;
-    color: white;
-    border: none;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.3s;
-}
+      .point-item {
+        padding: 5px;
+        margin: 3px 0;
+        background: #f5f5f5;
+        border-radius: 3px;
+        font-size: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
 
-.btn-add-instance:hover {
-    background: #45a049;
-}
+      .point-item button {
+        background: #f44336;
+        color: white;
+        border: none;
+        padding: 2px 8px;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 11px;
+      }
 
-.instance-list {
-    margin-top: 10px;
-}
+      /* Menu bên trái */
+      .left-panel {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        z-index: 1000;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        width: 320px;
+        max-height: calc(100vh - 100px);
+        overflow-y: auto;
+      }
 
-.instance-item {
-    padding: 12px;
-    margin: 8px 0;
-    background: #f8f9fa;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.3s;
-    border: 2px solid transparent;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
+      .left-panel h3 {
+        margin-bottom: 15px;
+        font-size: 18px;
+        color: #333;
+        border-bottom: 2px solid #2196f3;
+        padding-bottom: 10px;
+      }
 
-.instance-item:hover {
-    background: #e9ecef;
-}
+      .form-group {
+        margin-bottom: 15px;
+      }
 
-.instance-item.active {
-    background: #e3f2fd;
-    border-color: #2196F3;
-}
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #555;
+      }
 
-.instance-item-content {
-    flex: 1;
-}
+      .form-group input,
+      .form-group select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+        transition: border-color 0.3s;
+      }
 
-.instance-name {
-    font-weight: 600;
-    color: #333;
-    font-size: 14px;
-    margin-bottom: 4px;
-}
+      .form-group input:focus,
+      .form-group select:focus {
+        outline: none;
+        border-color: #2196f3;
+      }
 
-.instance-info {
-    font-size: 11px;
-    color: #666;
-}
+      .btn-load {
+        width: 100%;
+        padding: 12px;
+        background: #2196f3;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: 600;
+        transition: background 0.3s;
+        margin-top: 10px;
+      }
 
-.instance-actions {
-    display: flex;
-    gap: 5px;
-}
+      .btn-load:hover {
+        background: #0b7dda;
+      }
 
-.btn-delete-instance {
-    background: #f44336;
-    color: white;
-    border: none;
-    width: 24px;
-    height: 24px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.3s;
-}
+      .btn-load:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
 
-.btn-delete-instance:hover {
-    background: #da190b;
-}
+      .status-message {
+        margin-top: 10px;
+        padding: 10px;
+        border-radius: 4px;
+        font-size: 13px;
+        display: none;
+      }
 
-.no-instances {
-    text-align: center;
-    padding: 20px;
-    color: #999;
-    font-size: 13px;
-}
+      .status-message.success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+
+      .status-message.error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+
+      .status-message.info {
+        background: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+      }
+
+      .tracking-info {
+        margin-top: 15px;
+        padding: 10px;
+        background: #f8f9fa;
+        border-radius: 4px;
+        font-size: 12px;
+      }
+
+      .tracking-info strong {
+        display: block;
+        margin-bottom: 5px;
+        color: #333;
+      }
+      /* Slider cho filter */
+      .slider-group {
+        margin-bottom: 15px;
+      }
+
+      .slider-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #555;
+      }
+
+      .slider-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .slider-container input[type="range"] {
+        flex: 1;
+        height: 6px;
+        border-radius: 3px;
+        background: #ddd;
+        outline: none;
+        -webkit-appearance: none;
+      }
+
+      .slider-container input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #2196f3;
+        cursor: pointer;
+        transition: background 0.3s;
+      }
+
+      .slider-container input[type="range"]::-webkit-slider-thumb:hover {
+        background: #0b7dda;
+      }
+
+      .slider-container input[type="range"]::-moz-range-thumb {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #2196f3;
+        cursor: pointer;
+        border: none;
+      }
+
+      .slider-value {
+        min-width: 40px;
+        text-align: center;
+        font-weight: 600;
+        color: #2196f3;
+        font-size: 16px;
+      }
+
+      /* Instance Manager Panel */
+      .instance-panel {
+        position: absolute;
+        top: 20px;
+        left: 360px;
+        z-index: 1000;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        width: 280px;
+        max-height: calc(100vh - 100px);
+        overflow-y: auto;
+      }
+
+      .instance-panel h3 {
+        margin-bottom: 15px;
+        font-size: 18px;
+        color: #333;
+        border-bottom: 2px solid #4caf50;
+        padding-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .btn-add-instance {
+        background: #4caf50;
+        color: white;
+        border: none;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.3s;
+      }
+
+      .btn-add-instance:hover {
+        background: #45a049;
+      }
+
+      .instance-list {
+        margin-top: 10px;
+      }
+
+      .instance-item {
+        padding: 12px;
+        margin: 8px 0;
+        background: #f8f9fa;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: 2px solid transparent;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .instance-item:hover {
+        background: #e9ecef;
+      }
+
+      .instance-item.active {
+        background: #e3f2fd;
+        border-color: #2196f3;
+      }
+
+      .instance-item-content {
+        flex: 1;
+      }
+
+      .instance-name {
+        font-weight: 600;
+        color: #333;
+        font-size: 14px;
+        margin-bottom: 4px;
+      }
+
+      .instance-info {
+        font-size: 11px;
+        color: #666;
+      }
+
+      .instance-actions {
+        display: flex;
+        gap: 5px;
+      }
+
+      .btn-delete-instance {
+        background: #f44336;
+        color: white;
+        border: none;
+        width: 24px;
+        height: 24px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.3s;
+      }
+
+      .btn-delete-instance:hover {
+        background: #da190b;
+      }
+
+      .no-instances {
+        text-align: center;
+        padding: 20px;
+        color: #999;
+        font-size: 13px;
+      }
     </style>
-    </head>
-    <body>
-        <div id="map"></div>
-        <!-- Panel bên trái để lọc dữ liệu tracking -->
-        <div class="left-panel">
-            <h3>🚗 Tracking Vehicle</h3>
+  </head>
+  <body>
+    <div id="map"></div>
+    <!-- Panel bên trái để lọc dữ liệu tracking -->
+    <div class="left-panel">
+      <h3>🚗 Tracking Vehicle</h3>
 
-            <div class="form-group">
-                <label for="vehicleSelect">Chọn phương tiện:</label>
-                <select id="vehicleSelect">
-                    <option value>-- Đang tải danh sách... --</option>
-                </select>
-            </div>
+      <div class="form-group">
+        <label for="vehicleSelect">Chọn phương tiện:</label>
+        <select id="vehicleSelect">
+          <option value>-- Đang tải danh sách... --</option>
+        </select>
+      </div>
 
-            <div class="form-group">
-                <label for="startTime">Thời gian bắt đầu:</label>
-                <input type="datetime-local" id="startTime" />
-            </div>
+      <div class="form-group">
+        <label for="startTime">Thời gian bắt đầu:</label>
+        <input type="datetime-local" id="startTime" />
+      </div>
 
-            <div class="form-group">
-                <label for="endTime">Thời gian kết thúc:</label>
-                <input type="datetime-local" id="endTime" />
-            </div>
-            <div class="slider-group">
-                <label for="filterSlider">Số lượng điểm mapping <span
-                        class="slider-value" id="filterValue">50</span></label>
-                <div class="slider-container">
-                    <input type="range" id="filterSlider" min="10" max="200"
-                        step="10" value="50"
-                        oninput="updateFilterValue(this.value)">
-                </div>
-            </div>
-            <button class="btn-load" disabled onclick="loadTrackingData()">
-                📍 Tải dữ liệu tracking
-            </button>
-
-            <div class="status-message" id="statusMessage"></div>
-
-            <div class="tracking-info" id="trackingInfo" style="display: none;">
-                <strong>Thông tin tracking:</strong>
-                <div id="trackingDetails"></div>
-            </div>
-
+      <div class="form-group">
+        <label for="endTime">Thời gian kết thúc:</label>
+        <input type="datetime-local" id="endTime" />
+      </div>
+      <div class="slider-group">
+        <label for="filterSlider"
+          >Số lượng điểm mapping
+          <span class="slider-value" id="filterValue">50</span></label
+        >
+        <div class="slider-container">
+          <input
+            type="range"
+            id="filterSlider"
+            min="10"
+            max="200"
+            step="10"
+            value="50"
+            oninput="updateFilterValue(this.value)"
+          />
         </div>
+      </div>
+      <button class="btn-load" disabled onclick="loadTrackingData()">
+        📍 Tải dữ liệu tracking
+      </button>
 
-        <!-- Instance Manager Panel -->
-        <div class="instance-panel">
-            <h3>
-                📋 Instances
-                <button class="btn-add-instance" onclick="createNewInstance()"
-                    title="Tạo instance mới">+</button>
-            </h3>
+      <div class="status-message" id="statusMessage"></div>
 
-            <div class="instance-list" id="instanceList">
-                <div class="no-instances">
-                    Chưa có instance nào.<br>
-                    Click + để tạo mới.
-                </div>
-            </div>
+      <div class="tracking-info" id="trackingInfo" style="display: none">
+        <strong>Thông tin tracking:</strong>
+        <div id="trackingDetails"></div>
+      </div>
+    </div>
+
+    <!-- Instance Manager Panel -->
+    <div class="instance-panel">
+      <h3>
+        📋 Instances
+        <button
+          class="btn-add-instance"
+          onclick="createNewInstance()"
+          title="Tạo instance mới"
+        >
+          +
+        </button>
+      </h3>
+
+      <div class="instance-list" id="instanceList">
+        <div class="no-instances">
+          Chưa có instance nào.<br />
+          Click + để tạo mới.
         </div>
-        <div class="controls">
-            <h3>🗺️ Điều khiển</h3>
-            <button class="btn" onclick="zoomIn()">🔍 Zoom In</button>
-            <button class="btn" onclick="zoomOut()">🔍 Zoom Out</button>
-            <button class="btn secondary" onclick="goToHCM()">📍 Đến
-                TP.HCM</button>
-            <button class="btn secondary" onclick="goToHanoi()">📍 Đến Hà
-                Nội</button>
-            <button class="btn secondary" onclick="addMarker()">📌 Thêm
-                Marker</button>
-            <button class="btn danger" onclick="clearAllPoints()">🗑️ Xóa tất cả
-                điểm</button>
+      </div>
+    </div>
+    <div class="controls">
+      <h3>🗺️ Điều khiển</h3>
+      <button class="btn" onclick="zoomIn()">🔍 Zoom In</button>
+      <button class="btn" onclick="zoomOut()">🔍 Zoom Out</button>
+      <button class="btn secondary" onclick="goToHCM()">📍 Đến TP.HCM</button>
+      <button class="btn secondary" onclick="goToHanoi()">📍 Đến Hà Nội</button>
+      <button class="btn secondary" onclick="addMarker()">
+        📌 Thêm Marker
+      </button>
+      <button class="btn danger" onclick="clearAllPoints()">
+        🗑️ Xóa tất cả điểm
+      </button>
 
-            <div class="points-list" id="pointsList">
-                <strong style="margin-top: 10px;">Danh sách điểm đã
-                    lưu:</strong>
-            </div>
-        </div>
+      <div class="points-list" id="pointsList">
+        <strong style="margin-top: 10px">Danh sách điểm đã lưu:</strong>
+      </div>
+    </div>
 
-        <div class="info">
-            <strong>Hướng dẫn sử dụng:</strong>
-            • Kéo thả bản đồ để di chuyển<br>
-            • Cuộn chuột để zoom in/out<br>
-            • Click chuột phải để thêm điểm<br>
-            • Nhấp đúp để zoom nhanh<br>
-            • Zoom: <span id="zoom-level">10</span>
-        </div>
+    <div class="info">
+      <strong>Hướng dẫn sử dụng:</strong>
+      • Kéo thả bản đồ để di chuyển<br />
+      • Cuộn chuột để zoom in/out<br />
+      • Click chuột phải để thêm điểm<br />
+      • Nhấp đúp để zoom nhanh<br />
+      • Zoom: <span id="zoom-level">10</span>
+    </div>
 
-        <!-- Hiển thị tọa độ khi di chuyển chuột -->
-        <div class="coordinate-display" id="coordinateDisplay">
-            Lat: 0.000000, Lon: 0.000000
-        </div>
+    <!-- Hiển thị tọa độ khi di chuyển chuột -->
+    <div class="coordinate-display" id="coordinateDisplay">
+      Lat: 0.000000, Lon: 0.000000
+    </div>
 
-        <!-- Context Menu để thêm điểm -->
-        <div class="context-menu" id="contextMenu">
-            <h4>📍 Thêm điểm đến</h4>
-            <input type="text" id="pointName"
-                placeholder="Nhập tên điểm đến..." />
-            <div class="coordinates" id="contextCoords"></div>
-            <button class="btn-add" onclick="savePoint()">✓ Lưu điểm</button>
-            <button class="btn-cancel" onclick="closeContextMenu()">✗
-                Hủy</button>
-        </div>
+    <!-- Context Menu để thêm điểm -->
+    <div class="context-menu" id="contextMenu">
+      <h4>📍 Thêm điểm đến</h4>
+      <input type="text" id="pointName" placeholder="Nhập tên điểm đến..." />
+      <div class="coordinates" id="contextCoords"></div>
+      <div style="display: flex; justify-content: space-between;">
+        <button class="btn-add" onclick="savePoint()">✓ Lưu điểm</button>
+        <button class="btn-cancel" onclick="closeContextMenu()">✗ Hủy</button>
+      </div>
+    </div>
 
-        <script
-            src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-        <script src="control.js"></script>
-        <script src="vehicle.js"></script>
-        <script src="listen.js"></script>
-    </body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script src="control.js"></script>
+    <script src="vehicle.js"></script>
+    <script src="listen.js"></script>
+  </body>
 </html>

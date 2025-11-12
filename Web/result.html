@@ -1,321 +1,437 @@
 <!DOCTYPE html>
 <html lang="vi">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>VBD Map Matching</title>
-        <link rel="icon" type="image/png" href="favicon.png" />
-        <link rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
-        <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            height: 100vh;
-            overflow: hidden;
-        }
-        
-        #map {
-            width: 100%;
-            height: 100vh;
-        }
-        .controls2 {
-            position: absolute;
-            top: 400px;
-            right: 60px;
-            z-index: 1000;
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        }
-        .distance-box {
-            width: 100%;
-            resize: none;
-            padding: 8px;
-            font-size: 16px;
-            box-sizing: border-box;
-        }
-        .controls {
-            position: absolute;
-            top: 20px;
-            right: 60px;
-            z-index: 1000;
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        }
-        
-        .controls h3 {
-            margin-bottom: 10px;
-            font-size: 16px;
-            color: #333;
-        }
-        
-        .btn {
-            display: block;
-            width: 100%;
-            padding: 8px 15px;
-            margin: 5px 0;
-            background: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background 0.3s;
-        }
-        
-        .btn:hover {
-            background: #45a049;
-        }
-        
-        .btn.secondary {
-            background: #2196F3;
-        }
-        
-        .btn.secondary:hover {
-            background: #0b7dda;
-        }
-        
-        .btn.danger {
-            background: #f44336;
-        }
-        
-        .btn.danger:hover {
-            background: #da190b;
-        }
-        
-        .info {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            z-index: 1000;
-            background: white;
-            padding: 12px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            font-size: 13px;
-            max-width: 300px;
-        }
-        
-        .info strong {
-            display: block;
-            margin-bottom: 5px;
-            color: #333;
-        }
-        
-        /* Hiển thị tọa độ góc phải dưới */
-        .coordinate-display {
-            position: absolute;
-            bottom: 0;
-            right: 80px;
-            z-index: 1000;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 5px 10px;
-            font-size: 12px;
-            font-family: monospace;
-            border-top-left-radius: 4px;
-            border-top-right-radius: 4px;
-            box-shadow: 0 -1px 5px rgba(0,0,0,0.1);
-        }
-        
-        /* Context Menu - Hộp thoại thêm điểm */
-        .context-menu {
-            position: absolute;
-            display: none;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-            padding: 15px;
-            min-width: 250px;
-            z-index: 2000;
-        }
-        
-        .context-menu h4 {
-            margin-bottom: 10px;
-            color: #333;
-            font-size: 16px;
-        }
-        
-        .context-menu input {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-        
-        .context-menu .coordinates {
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 10px;
-            font-family: monospace;
-        }
-        
-        .context-menu button {
-            width: 48%;
-            padding: 8px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            margin-right: 4%;
-        }
-        
-        .context-menu button:last-child {
-            margin-right: 0;
-        }
-        
-        .context-menu .btn-add {
-            background: #4CAF50;
-            color: white;
-        }
-        
-        .context-menu .btn-cancel {
-            background: #f44336;
-            color: white;
-        }
-        
-        .marker-popup {
-            font-size: 14px;
-        }
-        
-        .marker-popup strong {
-            display: block;
-            margin-bottom: 5px;
-            color: #e04c07;
-        }
-        
-        .points-list {
-            margin-top: 10px;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        
-        .point-item {
-            padding: 5px;
-            margin: 3px 0;
-            background: #f5f5f5;
-            border-radius: 3px;
-            font-size: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .point-item button {
-            background: #f44336;
-            color: white;
-            border: none;
-            padding: 2px 8px;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 11px;
-        }
-        
-        .poi-marker {
-            background: transparent;
-            border: none;
-            text-align: center;
-        }
-        #layer-panel {
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VBD Map Matching</title>
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        height: 100vh;
+        overflow: hidden;
+      }
+      #map {
+        width: 100%;
+        height: 100vh;
+      }
+
+      /* ===== Results panel (trái) ===== */
+      .results-panel {
         position: absolute;
-        top: 100px;
+        top: 20px;
         left: 20px;
+        z-index: 1100;
+        width: 360px;
+        max-height: calc(100vh - 40px);
+        overflow: hidden;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        display: flex;
+        flex-direction: column;
+      }
+      .results-header {
+        padding: 12px 14px;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+      .results-header h3 {
+        font-size: 16px;
+        color: #333;
+        font-weight: 600;
+      }
+      .results-body {
+        overflow: auto;
+        max-height: calc(100vh - 140px);
+      }
+      .result-item {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 8px;
+        padding: 12px 14px;
+        border-bottom: 1px solid #f2f2f2;
+        cursor: pointer;
+        transition: background 0.15s ease;
+      }
+      .result-item:hover {
+        background: #f8fafc;
+      }
+      .result-item.active {
+        background: #eef6ff;
+        outline: 2px solid #cfe6ff;
+      }
+      .result-main {
+        min-width: 0;
+      }
+      .result-name {
+        font-weight: 600;
+        font-size: 14px;
+        color: #0f172a;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .result-address {
+        font-size: 12px;
+        color: #475569;
+        margin-top: 4px;
+        max-height: 30px;
+        overflow: hidden;
+      }
+      .result-meta {
+        display: flex;
+        gap: 8px;
+        margin-top: 6px;
+        font-size: 12px;
+        color: #1f2937;
+      }
+      .chip {
+        padding: 2px 6px;
+        border-radius: 999px;
+        background: #f1f5f9;
+      }
+      .result-actions {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .btn-mini {
+        border: 1px solid #e5e7eb;
+        background: #fff;
+        padding: 6px 8px;
+        border-radius: 6px;
+        font-size: 12px;
+        cursor: pointer;
+        transition: background 0.15s ease;
+      }
+      .btn-mini:hover {
+        background: #f8fafc;
+      }
+
+      /* ===== Toolbar điều khiển (trên cùng, nằm giữa) ===== */
+      .controls2 {
+        position: absolute;
+        top: 50%;
+        right: 50%;
+        transform: translate(50%, -50%);
+        z-index: 1000;
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      }
+      .distance-box {
+        width: 100%;
+        resize: none;
+        padding: 8px;
+        font-size: 16px;
+        box-sizing: border-box;
+        margin: 10px 0;
+      }
+
+      .controls {
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1200;
+        background: rgba(255, 255, 255, 0.95);
+        padding: 10px 12px;
+        border-radius: 10px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        max-width: calc(
+          100vw - 520px
+        ); /* chừa chỗ cho results-panel & layer-panel */
+      }
+      .controls h3 {
+        margin: 0 8px 0 0;
+        font-size: 14px;
+        color: #333;
+        white-space: nowrap;
+      }
+      .btn {
+        display: inline-block;
+        width: auto;
+        padding: 8px 12px;
+        margin: 0;
+        background: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 13px;
+        transition: background 0.3s;
+      }
+      .btn:hover {
+        background: #45a049;
+      }
+      .btn.secondary {
+        background: #2196f3;
+      }
+      .btn.secondary:hover {
+        background: #0b7dda;
+      }
+
+      /* ===== Layer panel (phải – top) ===== */
+      #layer-panel {
+        position: absolute;
+        top: 20px;
+        right: 60px;
+        left: auto;
+        z-index: 1000;
         background: rgb(248, 248, 248);
         padding: 10px 15px;
         border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
         font-family: sans-serif;
-        z-index: 1000;
-        }
-        #layer-panel h4 {
+        width: 260px;
+      }
+      #layer-panel h4 {
         margin: 0 0 6px;
         font-size: 15px;
         border-bottom: 1px solid #ddd;
         padding-bottom: 3px;
-        }
-        #layer-list label {
+      }
+      #layer-list label {
         display: block;
         margin: 4px 0;
-        }
+      }
 
+      /* Info, toạ độ, context menu */
+      .info {
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        z-index: 1000;
+        background: white;
+        padding: 12px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        font-size: 13px;
+        max-width: 300px;
+      }
+      .info strong {
+        display: block;
+        margin-bottom: 5px;
+        color: #333;
+      }
+      .coordinate-display {
+        position: absolute;
+        bottom: 0;
+        right: 80px;
+        z-index: 1000;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 5px 10px;
+        font-size: 12px;
+        font-family: monospace;
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
+        box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.1);
+      }
+      .context-menu {
+        position: absolute;
+        display: none;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        padding: 15px;
+        min-width: 250px;
+        z-index: 2000;
+      }
+      .context-menu h4 {
+        margin-bottom: 10px;
+        color: #333;
+        font-size: 16px;
+      }
+      .context-menu input,
+      .context-menu select {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+      .context-menu .coordinates {
+        font-size: 12px;
+        color: #666;
+        margin-bottom: 10px;
+        font-family: monospace;
+      }
+      .context-menu button {
+        width: 48%;
+        padding: 8px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        margin-right: 4%;
+      }
+      .context-menu button:last-child {
+        margin-right: 0;
+      }
+      .context-menu .btn-add {
+        background: #4caf50;
+        color: white;
+      }
+      .context-menu .btn-cancel {
+        background: #f44336;
+        color: white;
+      }
+
+      .marker-popup {
+        font-size: 14px;
+      }
+      .marker-popup strong {
+        display: block;
+        margin-bottom: 5px;
+        color: #e04c07;
+      }
+      .poi-marker {
+        background: transparent;
+        border: none;
+        text-align: center;
+      }
     </style>
-    </head>
-    <body>
-        <div id="map"></div>
-        <div id="map" style="height: 100vh;"></div>
+  </head>
+  <body>
+    <div id="map"></div>
 
-        <div id="layer-panel">
-            <h4>Lớp hiển thị</h4>
-            <div id="layer-list"></div> <!-- nơi tự động thêm checkbox -->
+    <div class="controls2" id="controls2" style="display: none">
+      <h3>🗺️ Distance</h3>
+      <input
+        type="number"
+        id="distanceInput"
+        value="1000"
+        class="distance-box"
+      />
+      <button class="btn" onclick="invokeData('update')">Update</button>
+      <button class="btn" onclick="invokeData('finish')" style="background-color: red;">Finish</button>
+    </div>
+
+    <!-- Results panel (trái) -->
+    <aside class="results-panel" id="resultsPanel" style="display: none">
+      <div class="results-header">
+        <h3>Kết quả tìm gần đây</h3>
+        <div style="display: flex; gap: 6px">
+          <button class="btn-mini" id="btnFitAll">Fit tất cả</button>
+          <button class="btn-mini" id="btnClearRoutes">Xoá đường</button>
         </div>
+      </div>
+      <div class="results-body" id="resultsList"></div>
+    </aside>
 
-        <div class="controls">
-            <h3>🗺️ Điều khiển</h3>
+    <!-- Layer panel (phải – top) -->
+    <div id="layer-panel">
+      <h4>Lớp hiển thị</h4>
+      <div id="layer-list"></div>
+    </div>
 
-            <button class="btn" onclick="zoomIn()">🔍 Zoom In</button>
-            <button class="btn" onclick="zoomOut()">🔍 Zoom Out</button>
-            <button class="btn secondary" onclick="goToHCM()">📍 Đến
-                TP.HCM</button>
-            <button class="btn secondary" onclick="goToHanoi()">📍 Đến Hà
-                Nội</button>
-            <button class="btn secondary" onclick="addMarker()">📌 Thêm
-                Marker</button>
-            <button class="btn danger" onclick="clearAllPoints()">🗑️ Xóa tất cả
-                điểm</button>
+    <!-- Thanh điều khiển (trên cùng) -->
+    <div class="controls">
+      <h3>🗺️ Điều khiển</h3>
+      <button class="btn" onclick="zoomIn()">🔍 Zoom In</button>
+      <button class="btn" onclick="zoomOut()">🔍 Zoom Out</button>
+      <button class="btn secondary" onclick="goToHCM()">📍 TP.HCM</button>
+      <button class="btn secondary" onclick="goToHanoi()">📍 Hà Nội</button>
+      <button class="btn secondary" onclick="addMarker()">📌 Marker</button>
+    </div>
 
-            <div class="points-list" id="pointsList">
-                <strong style="margin-top: 10px;">Danh sách điểm đã
-                    lưu:</strong>
-            </div>
+    <!-- Info & toạ độ -->
+    <div class="info">
+      <strong>Hướng dẫn sử dụng:</strong>
+      • Kéo thả bản đồ để di chuyển<br />
+      • Cuộn chuột để zoom in/out<br />
+      • Click chuột phải để thêm điểm<br />
+      • Nhấp đúp để zoom nhanh<br />
+      • Zoom: <span id="zoom-level">10</span>
+    </div>
+    <div class="coordinate-display" id="coordinateDisplay">
+      Lat: 0.000000, Lon: 0.000000
+    </div>
+
+    <!-- Context menu -->
+    <div class="context-menu" id="contextMenu">
+      <h4>🔎 Tìm địa điểm gần đây</h4>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px">
+        <div>
+          <label for="current_lat">Lat</label>
+          <input type="number" id="current_lat" step="any" readonly />
         </div>
-        <div class="controls2" id="controls2" style="display: none;">
-            <h3>🗺️ Distance</h3>
-            <input type="number" id="distanceInput" value="1000"
-                class="distance-box" />
-            <button class="btn" onclick="invokeData('update')">Update</button>
-            <button class="btn2" onclick="invokeData('finish')">Finish</button>
+        <div>
+          <label for="current_lon">Lon</label>
+          <input type="number" id="current_lon" step="any" readonly />
         </div>
-        <div class="info">
-            <strong>Hướng dẫn sử dụng:</strong>
-            • Kéo thả bản đồ để di chuyển<br>
-            • Cuộn chuột để zoom in/out<br>
-            • Click chuột phải để thêm điểm<br>
-            • Nhấp đúp để zoom nhanh<br>
-            • Zoom: <span id="zoom-level">10</span>
-        </div>
+      </div>
 
-        <!-- Hiển thị tọa độ khi di chuyển chuột -->
-        <div class="coordinate-display" id="coordinateDisplay">
-            Lat: 0.000000, Lon: 0.000000
+      <div
+        style="
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 8px;
+          margin-top: 6px;
+        "
+      >
+        <div>
+          <label for="distance">Bán kính (m)</label>
+          <input type="number" id="distance" value="1000" min="1" />
         </div>
-
-        <!-- Context Menu để thêm điểm -->
-        <div class="context-menu" id="contextMenu">
-            <h4>📍 Thêm điểm đến</h4>
-            <input type="text" id="pointName"
-                placeholder="Nhập tên điểm đến..." />
-            <div class="coordinates" id="contextCoords"></div>
-            <button class="btn-add" onclick="savePoint()">✓ Lưu điểm</button>
-            <button class="btn-cancel" onclick="closeContextMenu()">✗
-                Hủy</button>
+        <div>
+          <label for="duration">Thời lượng</label>
+          <input type="number" id="duration" value="100" min="0" />
         </div>
+      </div>
 
-        <script
-            src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <script src="control2.js"></script>
-        <script src="layer.js"></script>
-        <script src="layer2.js"></script>
-        <script src="listen2.js"></script>
-    </body>
+      <div style="margin-top: 6px">
+        <label for="number">Số lượng kết quả</label>
+        <input type="number" id="number" value="1" min="1" />
+      </div>
+
+      <div style="margin-top: 6px">
+        <select id="categorySelect">
+          <option value="8472aa54-4f43-44ab-87e2-f3108085cff7">Fire</option>
+          <option value="b15ab62e-d6b4-42a1-b2b4-7d04419bbcf7">Camera</option>
+        </select>
+      </div>
+
+      <div
+        class="coordinates"
+        id="contextCoords"
+        style="margin: 6px 0 0; font-size: 12px; opacity: 0.8"
+      ></div>
+
+      <div
+        style="display: flex; justify-content: space-between; margin-top: 8px"
+      >
+        <button class="btn-add" onclick="onClickFindSearchNearby()">
+          ✓ Tìm ngay
+        </button>
+        <button class="btn-cancel" onclick="closeContextMenu()">✗ Đóng</button>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="control2.js"></script>
+    <script src="layer.js"></script>
+    <script src="listen2.js"></script>
+  </body>
 </html>
